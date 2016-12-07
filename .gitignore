@@ -1,0 +1,8 @@
+*.o
+*.bc
+*.iloc
+bcc
+hashtest.c
+lex.yy.c
+parser.tab.c
+parser.tab.h
