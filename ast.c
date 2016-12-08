@@ -299,7 +299,8 @@ void NodeDisplay(ASTNode *t)
 void ILOC(ASTNode *root, char *fn)
 {
   int size = strlen(fn)-2;
-  char *nn=malloc(sizeof(size+4));
+  //char *nn=malloc(sizeof(size+4));
+  char nn[size+4];
   strncpy(nn,fn,size);
   strcat(nn,"iloc");
   printf("%s\n",nn);
