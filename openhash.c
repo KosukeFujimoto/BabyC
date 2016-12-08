@@ -97,6 +97,42 @@ void setValue(char *ident, int value)
   }
 }
 
+/*function setValue : return void
+  arguments:
+  - char * ident: target string 
+  - int value : value the selected node would take
+  
+  Summary:
+  setValue to the selected node
+  Algorithm is same as IsThereNode
+ */
+
+void setReg(char *ident, int rn)
+{
+  int index = key(ident);
+  //  struct node *snode = hashTable[index].head;
+  node *snode = hashTable[index].head;
+  if(!snode){
+    //printf("there is no identifier");
+  }else{
+    while(snode != NULL)
+      {
+	if(strcmp(ident,snode->ident)==0)
+	  {
+	    //printf("Target %s exists\n",ident);
+	    //printf("Set value %d to %s\n",value, ident);
+	    snode->rn = rn;
+	    break;
+	  }
+
+	if(snode->next==NULL)
+	  break;
+	
+	snode = snode->next;
+      }
+  }
+}
+
 
 /* function createNode : return node
    arguments: 
@@ -167,7 +203,7 @@ int getNodeValue(char *ident)
   //struct node *snode = hashTable[index].head;
   node *snode = hashTable[index].head;
   if(!snode){
-    printf("there is no such a identifier");
+    printf("there is no such a identifier\n");
     exit(0);
   }else{
     while(snode != NULL)
@@ -176,6 +212,58 @@ int getNodeValue(char *ident)
 	  {
 	    //printf("Target %s exists\n",ident);
 	    return snode->value; 
+	  }
+
+	if(snode->next==NULL)
+	  break;
+	snode = snode->next;
+      }
+  }
+  printf("%s is not declared \n", ident);
+  exit(0);
+} 
+
+int getNodeReg(char *ident)
+{
+  int index = key(ident);
+  //struct node *snode = hashTable[index].head;
+  node *snode = hashTable[index].head;
+  if(!snode){
+    printf("there is no such a identifier");
+    exit(0);
+  }else{
+    while(snode != NULL)
+      {
+	if(strcmp(ident,snode->ident)==0)
+	  {
+	    //printf("Target %s exists\n",ident);
+	    return snode->rn; 
+	  }
+
+	if(snode->next==NULL)
+	  break;
+	snode = snode->next;
+      }
+  }
+  printf("%s is not declared \n", ident);
+  exit(0);
+} 
+
+int getOffset(char *ident)
+{
+  int index = key(ident);
+  //struct node *snode = hashTable[index].head;
+  node *snode = hashTable[index].head;
+  if(!snode){
+    printf("there is no such a identifier");
+    exit(0);
+  }else{
+    while(snode != NULL)
+      {
+	if(strcmp(ident,snode->ident)==0)
+	  {
+	    //printf("Target %s exists\n",ident);
+	    return snode->offset; 
 	  }
 
 	if(snode->next==NULL)

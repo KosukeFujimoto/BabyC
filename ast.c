@@ -12,6 +12,7 @@
 
 FILE *file;
 static int RegNum = 0;
+static int BN = 0;
 
 ASTNode* CreateNumNode(int num)
 {
@@ -96,6 +97,7 @@ ASTNode* AssignmentNode(ASTNode *ident, ASTNode *expr)
   node->left = ident;
   node->right = expr;
   setValue(ident->name,expr->num);
+  node->rn = getNodeReg(ident->name);  
   //printf("expr value has %d\n",node->num);
   return node;
   }else{
@@ -196,7 +198,7 @@ ASTNode* AndNode(ASTNode *expr1, ASTNode *expr2)
   node->num = (expr1->num) && (expr2->num) ;
   node->left = expr1;
   node->right = expr2;
-  NodeDisplay(node);
+  // NodeDisplay(node);
   return node;
 }
 
@@ -209,7 +211,7 @@ ASTNode* OrNode(ASTNode *expr1, ASTNode *expr2)
   node->num = (expr1->num) || (expr2->num) ;
   node->left = expr1;
   node->right = expr2;
-  NodeDisplay(node);
+  //  NodeDisplay(node);
   return node;
 }
 
@@ -219,20 +221,18 @@ ASTNode* IfNode(ASTNode *condition, ASTNode *stmtlist )
   node->type = IFS;
   node->name = "IfNode";
   node->left = condition;
-  if(condition->num)
-    {
-      node->right = stmtlist;
-    }
+  node->right = stmtlist;
   return node;
 }
 
 ASTNode* IfElseNode(ASTNode *condition, ASTNode *stmtlist1, ASTNode *stmtlist2)
 {
   ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
+  ASTNode* stmt = (ASTNode*)malloc(sizeof(ASTNode));
   node->type = IFS;
   node->name = "IfElseNode";
   node->left = condition;
-  if(condition->num)
+  /*if(condition->num)
     {
       node->right = stmtlist1;
       //printf("node is %d\n",node->left->num);
@@ -241,7 +241,16 @@ ASTNode* IfElseNode(ASTNode *condition, ASTNode *stmtlist1, ASTNode *stmtlist2)
     {
       node->right = stmtlist2;
       //printf("node is %d\n",node->left->num);
-    }
+      }*/
+  node->right = stmt;
+  node->right->name = "ifelse";
+  node->right->type = STMTL;
+  stmt->left=stmtlist1;
+  stmt->left->name="stmt1";
+  stmt->left->type = IFELS;
+
+  stmt->right=stmtlist2;
+  stmt->right->name="stmt2";
   return node;
 }
 
@@ -332,8 +341,8 @@ ASTNode* Traverse(ASTNode *root)
 void output(ASTNode *program)
 {
   NodeType rtype,ltype;
-  char reg[5];
-  
+  int la,ra;
+  int NB1;
   if(program->right!=NULL){
     rtype = program->right->type;
   }
@@ -362,39 +371,117 @@ void output(ASTNode *program)
     break;
       
     case AOP:
-      if(((ltype==AOP)||(ltype==NUMBER)||(ltype==IDENTFIER))
-	 &&
-	 ((rtype==AOP)||(rtype==NUMBER)||(rtype==IDENTFIER)))
+
+      if(ltype==NUMBER)
 	{
-	  program->rn = NextReg();
-	  //sprintf(reg,"r%d",x);
+	  la = program->left->num;
+	}
+      else if(ltype==IDENTFIER)
+	{
+	  la = getNodeReg(program->left->name);
+	  program->left->rn = getNodeReg(program->left->name);
+	}
+      else if(ltype==AOP)
+	{
+	  la = program->left->rn;
+	}
+
+      if(rtype==NUMBER)
+	{
+	  ra = program->right->num;
+	}
+      else if(rtype==IDENTFIER)
+	{
+	  ra = getNodeReg(program->right->name);
+	  program->right->rn = getNodeReg(program->right->name);
+	}
+      else if(rtype==AOP)
+	{
+	  la = program->right->rn;
+	}
+
+      /*
+	if(ltype==IDENTFIER)
+	printf("left reg: %d",la);
+	
+	if(rtype==IDENTFIER)
+      printf("right reg: %d",ra);
+      //	printf("left reg : %d\n", getNodeReg(program->left->name));
+      */
+      
+      program->rn = NextReg();
+      //sprintf(reg,"r%d",x);
+      if((ltype!=NUMBER)&&(rtype!=NUMBER))
+	{
 	  if( program->op == ADD )
 	    {	      
-	      fprintf(file,"add %d %d -> r%d\n", program->left->rn, program->right->rn, program->rn);
+	      fprintf(file,"add r%d r%d -> r%d\n", la, ra, program->rn);
 	    }
 	  else if( program->op == SUB )
 	    {
-	      fprintf(file,"sub %d %d -> r%d\n", program->left->rn, program->right->rn, program->rn);
+	      fprintf(file,"sub r%d r%d -> r%d\n", la, ra, program->rn);
 	    }
 	  else if( program->op == MULT)
 	    {
-	      fprintf(file,"mult %d %d -> r%d\n", program->left->rn, program->right->rn, program->rn);
+	      fprintf(file,"mult r%d r%d -> r%d\n", la, ra, program->rn);
 	    }
 	  else if( program->op == DIV)
 	    {
-	      fprintf(file,"div %d %d -> r%d\n", program->left->rn, program->right->rn, program->rn);
+	      fprintf(file,"div r%d r%d -> r%d\n", la, ra, program->rn);
 	    }
 	}
+
+      if((ltype==NUMBER)&&(rtype!=NUMBER))
+	{
+	  if( program->op == ADD )
+	    {	      
+	      fprintf(file,"add %d r%d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == SUB )
+	    {
+	      fprintf(file,"sub %d r%d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == MULT)
+	    {
+	      fprintf(file,"mult %d r%d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == DIV)
+	    {
+	      fprintf(file,"div %d r%d -> r%d\n", la, ra, program->rn);
+	    }
+	}
+
+      if((ltype!=NUMBER)&&(rtype==NUMBER))
+	{
+	  if( program->op == ADD )
+	    {	      
+	      fprintf(file,"add r%d %d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == SUB )
+	    {
+	      fprintf(file,"sub r%d %d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == MULT)
+	    {
+	      fprintf(file,"mult r%d %d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == DIV)
+	    {
+	      fprintf(file,"div r%d %d -> r%d\n", la, ra, program->rn);
+	    }
+	}
+      
       break;
 
     case LOP:
+      program->rn = NextReg();
       if(program->op==ANDOP)
 	{
-	  fprintf(file,"and %s %s -> \n", program->left->name,program->right->name);
+	  fprintf(file,"and r%s r%s -> %d\n", program->left->name,program->right->name,program->rn);
 	}
       else if(program->op==OROP)
 	{
-	  fprintf(file,"or %s %s -> \n", program->left->name,program->right->name);
+	  fprintf(file,"or r%s r%s -> %d\n", program->left->name,program->right->name,program->rn);
 	}
       break;
       
@@ -402,28 +489,34 @@ void output(ASTNode *program)
       program->rn = NextReg();
       if(program->op==GRET)
 	{
-	  fprintf(file,"comp_GT %d %d -> %d\n",program->left->num,program->right->num,program->rn);
+	  fprintf(file,"comp_GT %d %d -> r%d\n",program->left->num,program->right->num,program->rn);
 	}
       else if(program->op==LESS)
 	{
-	  fprintf(file,"comp_LT %d %d -> %d\n",program->left->num,program->right->num,program->rn);
+	  fprintf(file,"comp_LT %d %d -> r%d\n",program->left->num,program->right->num,program->rn);
 	}
       else if(program->op==GEQ)
 	{
-	  fprintf(file,"comp_GE %d %d -> %d\n",program->left->num,program->right->num,program->rn);
+	  fprintf(file,"comp_GE %d %d -> r%d\n",program->left->num,program->right->num,program->rn);
 	}
       else if(program->op==LEQ)
 	{
-	  fprintf(file,"comp_LE %d %d -> %d\n",program->left->num,program->right->num,program->rn);	  
+	  fprintf(file,"comp_LE %d %d -> r%d\n",program->left->num,program->right->num,program->rn);	  
 	}
       else if(program->op==EQUAL)
  	{
-	  fprintf(file,"comp_EQ %d %d -> %d\n",program->left->num,program->right->num,program->rn);	  	  
+	  fprintf(file,"comp_EQ %d %d -> r%d\n",program->left->num,program->right->num,program->rn);	  	  
 	}
       else if(program->op==NOTEQ)
 	{
-	  fprintf(file,"comp_NE %d %d ->\n",program->left->num,program->right->num);	  	  
+	  fprintf(file,"comp_NE %d %d -> r%d\n",program->left->num,program->right->num,program->rn);	  	  
 	}
+
+      NB1 = NextBlock();
+      int NB2 = NB1+1;
+
+      fprintf(file,"cbr r%d L%d L%d\n",program->rn, NB1, NB2);
+      fprintf(file,"L%d: \n",NB1);
       break;
 
     case ASSIGN:
@@ -431,20 +524,40 @@ void output(ASTNode *program)
 	{
 	  program->rn = NextReg();
 	  int num = program->right->num;
-	  fprintf(file,"storeI %d -> @rarp, offset\n", num);
+	  setReg(program->left->name,program->rn);
+	  fprintf(file,"storeI %d -> r%d @rarp, %d\n", num, program->rn, getOffset(program->left->name));
 	}
 
       if((rtype==AOP)||(rtype==IDENTFIER))
 	{
 	  program->rn = NextReg();
 	  char *ident = program->right->name;
-	  fprintf(file,"store %d -> rarp offset\n", program->right->rn );
+	  setReg(program->left->name,program->rn);
+	  int rn;
+	  if(rtype==IDENTFIER){
+	    rn=getNodeReg(program->right->name);
+	  }
+	  else
+	    {
+	    rn=program->right->rn;
+	  }
+	  fprintf(file,"store r%d -> r%d @rarp %d\n", rn, program->rn, getOffset(program->left->name));
 	}
       
       break;
 
-    case WHILES:
+    case IFS:
+      fprintf(file,"L%d:\n",NextBlock());
+      break;
+
+    case IFELS:
+
+      break;
       
+    case WHILES:
+      NB1 = NextBlock();
+      fprintf(file,"jumpI L%d\n",NB1-1);
+      fprintf(file,"L%d:\n",NB1);
       break;
       
     default:
@@ -455,4 +568,9 @@ void output(ASTNode *program)
 int NextReg()
 {
   return RegNum++;
+}
+
+int NextBlock()
+{
+  return BN++;
 }

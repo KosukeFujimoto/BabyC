@@ -1,7 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
-typedef enum{AOP, LOP, COMP, ASSIGN, IDENTFIER, NUMBER, IFS, WHILES,STMTL} NodeType;
+typedef enum{AOP, LOP, COMP, ASSIGN, IDENTFIER, NUMBER, IFS, IFELS,WHILES,STMTL} NodeType;
 typedef enum{ADD, SUB, MULT, DIV, GRET, LESS, EQUAL, NOTEQ, GEQ, LEQ, ANDOP, OROP} NodeOp;
 
 typedef struct ASTNode ASTNode;
@@ -36,4 +36,5 @@ void ILOC(ASTNode *root,char *fn);
 ASTNode* Traverse(ASTNode *root);
 void output(ASTNode *program);
 int NextReg();
+int NextBlock();
 #endif

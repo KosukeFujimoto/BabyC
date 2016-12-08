@@ -16,7 +16,7 @@ struct node{
   char ident[20];
   int value;
   int offset;
-  int regnum;
+  int rn;
 };
 
 
@@ -34,9 +34,12 @@ struct hash{
 struct hash *hashTable;
 void insertNode(char *ident);
 void setValue(char *ident, int num);
+void setReg(char *ident, int rn);
 node * createNode(int key, char *ident);
 int IsThereIdent(char *ident);
 int getNodeValue(char *ident);
+int getNodeReg(char *ident);
+int getOffset(char *ident);
 int key(char * ident);
 
 #endif
