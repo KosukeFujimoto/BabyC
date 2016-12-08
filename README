@@ -1,0 +1,37 @@
+DATE:12/7/2016
+AUTHOR:Kosuke Fujimoto
+
+- BabyC Compiler Specification -
+This file shows specification of BabyC compiler.
+
+BabyC compiler consists following files.
+
+- makefile
+- driver.c
+- lexer.lex
+- parser.y
+- openhash.h
+- openhash.c
+- ast.h
+- ast.c
+
+First of all, to generate execution file "bcc", you have to type command "make".
+
+driver.c has main function that program takes command line arguments.
+
+lexer.lex is given file. I did not change anything.
+
+parser.y is grammer file. 
+
+openhash.c openhash.h define hash table and it holds variables with
+- identifier
+- value
+- offset
+- register number
+
+identifier is 20 characters long. If your vairable name is longer than that, the program outputs error.
+
+ast.c ast.h define AST and ILOC function
+
+
+
