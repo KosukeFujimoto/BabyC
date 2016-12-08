@@ -15,7 +15,17 @@ BabyC compiler consists following files.
 - ast.h
 - ast.c
 
+
+
+1. how to use
+
 First of all, to generate execution file "bcc", you have to type command "make".
+
+To run execution file "bcc", type ./bcc foo.bc
+
+This program creates foo.iloc
+
+2. Included Files
 
 driver.c has main function that program takes command line arguments.
 
@@ -33,5 +43,15 @@ identifier is 20 characters long. If your vairable name is longer than that, the
 
 ast.c ast.h define AST and ILOC function
 
+3. My Work
 
+Complete Compiler Specification
 
+declaration
+Asignment
+if
+single if else 
+
+Incomplete Compiler Specification
+AND OR operator
+while 

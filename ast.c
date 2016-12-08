@@ -333,7 +333,7 @@ ASTNode* Traverse(ASTNode *root)
       node = Traverse(root->right);
     }
   output(root);
-  NodeDisplay(root);
+  // NodeDisplay(root);
   //printf("node is:\n");
   return root;
 }
@@ -477,11 +477,11 @@ void output(ASTNode *program)
       program->rn = NextReg();
       if(program->op==ANDOP)
 	{
-	  fprintf(file,"and r%s r%s -> %d\n", program->left->name,program->right->name,program->rn);
+	  fprintf(file,"and r%d r%d -> r%d\n", program->left->rn,program->right->rn,program->rn);
 	}
       else if(program->op==OROP)
 	{
-	  fprintf(file,"or r%s r%s -> %d\n", program->left->name,program->right->name,program->rn);
+	  fprintf(file,"or r%d r%d -> r%d\n", program->left->rn,program->right->rn,program->rn);
 	}
       break;
       
