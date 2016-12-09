@@ -275,7 +275,7 @@ void NodeDisplay(ASTNode *t)
   
   if(t->left!=NULL){
     printf("left node :%s\n",t->left->name);
-  printf("left reg# :%d\n",t->left->rn);
+    printf("left reg# :%d\n",t->left->rn);
     //printf("left:%d\n",t->left->num);
     //      printf("reg# :%s\n",t->left->reg);
   }
@@ -334,7 +334,7 @@ ASTNode* Traverse(ASTNode *root)
   
   node = Traverse(root->left);
  
-  if(root->type==IFS)
+  if(root->type==IFS&&root->left->type==LOP)
     {
       root->num=1;
       output(root);
@@ -345,7 +345,7 @@ ASTNode* Traverse(ASTNode *root)
     {
       node = Traverse(root->right);
     }
-
+  NodeDisplay(root);
   output(root);
 
   return root;
