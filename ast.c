@@ -127,7 +127,7 @@ ASTNode* CompNode(int op, ASTNode *expr1, ASTNode *expr2)
     node->type = COMP;
     node->op = GRET;
     node->name = "GRE";
-    node->num = (expr1->num) > (expr2->num) ;
+    //node->num = (expr1->num) > (expr2->num) ;
     node->left = expr1;
     node->right = expr2;
 
@@ -137,7 +137,7 @@ ASTNode* CompNode(int op, ASTNode *expr1, ASTNode *expr2)
     node->type = COMP;
     node->op = LESS;
     node->name = "LESS";
-    node->num = (expr1->num) < (expr2->num) ;
+    //node->num = (expr1->num) < (expr2->num) ;
     node->left = expr1;
     node->right = expr2;
     break;
@@ -147,7 +147,7 @@ ASTNode* CompNode(int op, ASTNode *expr1, ASTNode *expr2)
     node->type = COMP;
     node->op = GEQ;
     node->name = "GEQ";
-    node->num = (expr1->num) >= (expr2->num) ;
+    //node->num = (expr1->num) >= (expr2->num) ;
     node->left = expr1;
     node->right = expr2;
     break;
@@ -157,7 +157,7 @@ ASTNode* CompNode(int op, ASTNode *expr1, ASTNode *expr2)
     node->type = COMP;
     node->op = LEQ;
     node->name = "LEQ";
-    node->num = (expr1->num) <= (expr2->num) ;
+    //node->num = (expr1->num) <= (expr2->num) ;
     node->left = expr1;
     node->right = expr2;
     break;
@@ -166,7 +166,7 @@ ASTNode* CompNode(int op, ASTNode *expr1, ASTNode *expr2)
     node->type = COMP;
     node->op = EQUAL;
     node->name = "EQUAL";
-    node->num = (expr1->num) == (expr2->num) ;
+    //node->num = (expr1->num) == (expr2->num) ;
     node->left = expr1;
     node->right = expr2;
     
@@ -176,7 +176,7 @@ ASTNode* CompNode(int op, ASTNode *expr1, ASTNode *expr2)
     node->type = COMP;
     node->op = NOTEQ;
     node->name = "NOTEQ";
-    node->num = (expr1->num) != (expr2->num) ;
+    //    node->num = (expr1->num) != (expr2->num) ;
     node->left = expr1;
     node->right = expr2;
     break;
@@ -195,7 +195,7 @@ ASTNode* AndNode(ASTNode *expr1, ASTNode *expr2)
   node->type = LOP;
   node->op = ANDOP;
   node->name = "AndNode";
-  node->num = (expr1->num) && (expr2->num) ;
+  //node->num = (expr1->num) && (expr2->num) ;
   node->left = expr1;
   node->right = expr2;
   // NodeDisplay(node);
@@ -208,7 +208,7 @@ ASTNode* OrNode(ASTNode *expr1, ASTNode *expr2)
   node->type = LOP;
   node->op = OROP;
   node->name = "OrNode";
-  node->num = (expr1->num) || (expr2->num) ;
+  //node->num = (expr1->num) || (expr2->num) ;
   node->left = expr1;
   node->right = expr2;
   //  NodeDisplay(node);
@@ -312,30 +312,42 @@ void ILOC(ASTNode *root, char *fn)
 ASTNode* Traverse(ASTNode *root)
 {
   ASTNode *node;
-  //printf("root\n");
-  //NodeDisplay(root);
 
-  //Check Left Node until null
-
+  if(root->type==LOP){
+    NodeDisplay(root);
+    root->left->num=1;
+    root->right->num=1;
+  }
+  
+  /*
+  if(root->type==IFS&&root->left->type==LOP)
+    {
+      output(root);
+      root->num=1;
+    }
+  */
+  
   if(root->left==NULL)
     {
       return root;
     }
   
   node = Traverse(root->left);
+ 
+  if(root->type==IFS)
+    {
+      root->num=1;
+      output(root);
+      root->num=0;
+    }
 
-  //  output(root);
-  //printf("Child node is:\n");
-  //  NodeDisplay(root);
-  //  output(root);
-  
   if(root->right!=NULL)
     {
       node = Traverse(root->right);
     }
+
   output(root);
-  // NodeDisplay(root);
-  //printf("node is:\n");
+
   return root;
 }
 
@@ -372,7 +384,6 @@ void output(ASTNode *program)
     break;
       
     case AOP:
-
       if(ltype==NUMBER)
 	{
 	  la = program->left->num;
@@ -533,11 +544,12 @@ void output(ASTNode *program)
 	  fprintf(file,"comp_NE %d %d -> r%d\n",program->left->num,program->right->num,program->rn);	  	  
 	}
 
+      if(program->num!=1){
       NB1 = NextBlock();
       int NB2 = NB1+1;
-
       fprintf(file,"cbr r%d L%d L%d\n",program->rn, NB1, NB2);
       fprintf(file,"L%d: \n",NB1);
+      }
       break;
 
     case ASSIGN:
@@ -568,7 +580,17 @@ void output(ASTNode *program)
       break;
 
     case IFS:
+      
+      if(program->num==1)
+	{
+	  NB1 = NextBlock();
+	  int NB2 = NB1+1;
+          fprintf(file,"cbr r%d L%d L%d\n",program->rn, NB1, NB2);
+	  program->num=0;
+	}
+      
       fprintf(file,"L%d:\n",NextBlock());
+
       break;
 
     case IFELS:
