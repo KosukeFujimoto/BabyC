@@ -471,7 +471,27 @@ void output(ASTNode *program)
 	      fprintf(file,"div r%d %d -> r%d\n", la, ra, program->rn);
 	    }
 	}
-      
+
+      if((ltype==NUMBER)&&(rtype==NUMBER))
+	{
+	  if( program->op == ADD )
+	    {	      
+	      fprintf(file,"add %d %d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == SUB )
+	    {
+	      fprintf(file,"sub %d %d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == MULT)
+	    {
+	      fprintf(file,"mult %d %d -> r%d\n", la, ra, program->rn);
+	    }
+	  else if( program->op == DIV)
+	    {
+	      fprintf(file,"div %d %d -> r%d\n", la, ra, program->rn);
+	    }
+	}
+
       break;
 
     case LOP:
