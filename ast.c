@@ -327,6 +327,12 @@ ASTNode* Traverse(ASTNode *root)
     }
   */
   
+  if(root->type==WHILES)
+    {
+      NodeDisplay(root);
+      fprintf(file,"L%d:\n",NextBlock());
+    }
+
   if(root->left==NULL)
     {
       return root;
@@ -341,11 +347,18 @@ ASTNode* Traverse(ASTNode *root)
       root->num=0;
     }
 
+  if(root->type==WHILES)
+    {
+      root->num=1;
+      output(root);
+      root->num=0;
+    }
+
   if(root->right!=NULL)
     {
       node = Traverse(root->right);
     }
-  NodeDisplay(root);
+  //  NodeDisplay(root);
   output(root);
 
   return root;
@@ -598,8 +611,13 @@ void output(ASTNode *program)
       break;
       
     case WHILES:
-      NB1 = NextBlock();
-      fprintf(file,"jumpI L%d\n",NB1-1);
+      if(program->num==1)
+	{
+	  NB1 = NextBlock();
+	  int NB2 = NB1+1;
+          fprintf(file,"cbr r%d L%d L%d\n",program->rn, NB1, NB2);
+	  program->num=0;
+	}
       fprintf(file,"L%d:\n",NB1);
       break;
       
