@@ -49,9 +49,10 @@ Complete Compiler Specification
 
 declaration
 Asignment
-if
 single if else 
 AND OR operator
 
 Incomplete Compiler Specification
+load instruction
+jump instruction after first branch of if statement
 while 
